@@ -30,7 +30,7 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          VITE_BASE_PATH: /GitAnalytics/
+          VITE_BASE_PATH: /ConciergeCommerce/
 
       - name: Copy index.html to 404.html for SPA deep-link support
         run: cp dist/index.html dist/404.html
