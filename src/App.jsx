@@ -8,7 +8,7 @@ import NotificationToast from './components/shared/NotificationToast';
 function App() {
   return (
     <Router basename={import.meta.env.BASE_URL}>
-      <div className="min-h-screen bg-cream">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-sky-50">
         <NotificationToast />
         <Routes>
           <Route path="/"              element={<RoleGate />} />

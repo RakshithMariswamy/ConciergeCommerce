@@ -5,7 +5,7 @@
  * Tabs: Overview · Assign · All Tasks · Team
  */
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Bell, LayoutDashboard, GitBranch, ClipboardList,
   Users, LogOut, TrendingUp, Clock, CheckCircle,
@@ -20,12 +20,16 @@ import TaskAssignmentModule from '../components/associate/TaskAssignmentModule';
 import AssociatePool from '../components/associate/AssociatePool';
 import ClientProfile from '../components/associate/ClientProfile';
 import NotificationDrawer from '../components/shared/NotificationDrawer';
+import OrchestratorActivityPanel from '../components/shared/OrchestratorActivityPanel';
+import { useAgent } from '../hooks/useAgent';
+import { createAuditEntry, AuditAction } from '../services/auditLogger';
 
 // ─── TAB CONFIG ───────────────────────────────────────────────────────────────
 
 const TABS = [
   { id: 'overview', label: 'Overview', Icon: LayoutDashboard },
   { id: 'assign',   label: 'Assign',   Icon: GitBranch       },
+  { id: 'ai-insights', label: 'AI Insights', Icon: TrendingUp },
   { id: 'tasks',    label: 'All Tasks', Icon: ClipboardList   },
   { id: 'clients',  label: 'Clients',  Icon: Users           },
   { id: 'team',     label: 'Team',     Icon: UserCheck       },
@@ -60,7 +64,7 @@ const ActivityEntry = ({ entry }) => {
     <div className="flex items-start gap-2.5 py-2 border-b border-gray-50 last:border-0">
       <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${colorMap[entry.severity] ?? 'bg-gray-300'}`} />
       <div className="min-w-0 flex-1">
-        <p className="text-xs font-semibold text-charcoal font-sans">{entry.label}</p>
+        <p className="text-xs font-semibold text-slate-900 font-sans">{entry.label}</p>
         {entry.taskId && (
           <p className="text-[10px] text-gray-400 font-sans">Task #{entry.taskId}</p>
         )}
@@ -107,11 +111,14 @@ const OverviewTab = () => {
         ))}
       </div>
 
+      {/* Orchestrator observability */}
+      <OrchestratorActivityPanel />
+
       {/* Two-column: associate status + recent activity */}
       <div className="grid sm:grid-cols-2 gap-4">
         {/* Associate status */}
         <div className="bg-white rounded-2xl shadow-luxury border border-gray-100 p-5">
-          <h3 className="font-serif text-base font-medium text-charcoal mb-4">Floor Status</h3>
+          <h3 className="font-serif text-base font-medium text-slate-900 mb-4">Floor Status</h3>
           <div className="space-y-2">
             {associates.map((a) => {
               const dotColor =
@@ -131,7 +138,7 @@ const OverviewTab = () => {
                 >
                   <div className="flex items-center gap-2.5">
                     <span className={`w-2 h-2 rounded-full shrink-0 ${dotColor}`} />
-                    <span className="text-sm font-sans font-medium text-charcoal">{a.name}</span>
+                    <span className="text-sm font-sans font-medium text-slate-900">{a.name}</span>
                     {a.role === 'TeamLead' && (
                       <span className="text-[9px] bg-indigo-50 text-indigo-600 border border-indigo-200 rounded px-1.5 font-semibold">
                         TL
@@ -166,7 +173,7 @@ const OverviewTab = () => {
 
         {/* Recent activity */}
         <div className="bg-white rounded-2xl shadow-luxury border border-gray-100 p-5">
-          <h3 className="font-serif text-base font-medium text-charcoal mb-4">Recent Activity</h3>
+          <h3 className="font-serif text-base font-medium text-slate-900 mb-4">Recent Activity</h3>
           {auditLog.length === 0 ? (
             <p className="text-xs text-gray-300 font-sans italic text-center py-8">
               No activity yet. Assign a task to get started.
@@ -192,6 +199,143 @@ const TeamTab = () => (
   </div>
 );
 
+const AIInsightsTab = () => {
+  const auditLog = useAssignmentStore((s) => s.auditLog);
+  const associates = useAssignmentStore((s) => s.associates);
+  const addAuditEntry = useAssignmentStore((s) => s.addAuditEntry);
+  const currentUser = useAssignmentStore((s) => s.currentUser);
+  const { invokeRouted, isThinking, result } = useAgent('orchestrator');
+
+  const runInsights = async () => {
+    const routed = await invokeRouted({
+      intent: 'Analyze recent operational audit activity and identify workload or SLA risks.',
+      context: {
+        tab: 'ai-insights',
+        auditEntryCount: auditLog.length,
+        associateCount: associates.length,
+      },
+      payloadByAgent: {
+        audit_analysis: {
+          auditEntries: auditLog,
+          associates,
+          timeWindowMinutes: 120,
+        },
+      },
+      defaultPayload: {
+        auditEntries: auditLog,
+        associates,
+        timeWindowMinutes: 120,
+      },
+    });
+
+    const insights = routed?.result;
+
+    addAuditEntry(
+      createAuditEntry({
+        action: AuditAction.AI_INSIGHT_GENERATED,
+        actorId: currentUser.id,
+        actorName: currentUser.name,
+        actorRole: currentUser.role,
+        reason:
+          insights?.summary ||
+          routed?.route?.reason ||
+          'AI insights generated from audit timeline.',
+        metadata: {
+          routedAgent: routed?.route?.agent || null,
+        },
+      })
+    );
+  };
+
+  const routedAgent = result?.route?.agent || null;
+  const insights = result?.executed ? result.result : null;
+
+  useEffect(() => {
+    void runInsights();
+    const timer = window.setInterval(() => {
+      void runInsights();
+    }, 5 * 60 * 1000);
+
+    return () => window.clearInterval(timer);
+  }, []);
+
+  return (
+    <div className="space-y-4">
+      <div className="bg-white rounded-2xl shadow-luxury border border-gray-100 p-5">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h3 className="font-serif text-base font-medium text-slate-900">AI Operational Insights</h3>
+            <p className="text-xs text-gray-400 font-sans mt-1">
+              Patterns from audit activity, workload drift, and coaching flags.
+            </p>
+            {routedAgent && (
+              <p className="text-[10px] text-indigo-600 font-sans mt-1 uppercase tracking-wider">
+                Routed via orchestrator to: {routedAgent}
+              </p>
+            )}
+          </div>
+          <button
+            onClick={runInsights}
+            disabled={isThinking}
+            className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-xs font-sans font-semibold hover:from-indigo-700 hover:to-purple-700 disabled:opacity-50"
+          >
+            {isThinking ? 'Analyzing...' : 'Refresh Insights'}
+          </button>
+        </div>
+      </div>
+
+      {insights && (
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div className="bg-white rounded-2xl shadow-luxury border border-gray-100 p-5">
+            <p className="text-[10px] font-sans uppercase tracking-wider text-gray-400 mb-3">
+              Summary
+            </p>
+            <p className="text-sm font-sans text-slate-900">{insights.summary || 'No summary available.'}</p>
+            <p className="text-xs font-sans text-gray-400 mt-2">
+              SLA Breach Risk: <span className="font-semibold text-slate-900">{insights.slaBreachRisk || 'unknown'}</span>
+            </p>
+          </div>
+
+          <div className="bg-white rounded-2xl shadow-luxury border border-gray-100 p-5">
+            <p className="text-[10px] font-sans uppercase tracking-wider text-gray-400 mb-3">
+              Coaching Flags
+            </p>
+            {Array.isArray(insights.coachingFlags) && insights.coachingFlags.length > 0 ? (
+              <div className="space-y-2">
+                {insights.coachingFlags.slice(0, 5).map((flag, idx) => (
+                  <p key={`${flag.associateId || idx}-${idx}`} className="text-xs font-sans text-slate-900">
+                    • {flag.associateName || flag.associateId}: {flag.note || `${flag.autoReassignCount} auto-reassignments`}
+                  </p>
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs font-sans text-gray-400">No coaching flags detected in current window.</p>
+            )}
+          </div>
+
+          <div className="bg-white rounded-2xl shadow-luxury border border-gray-100 p-5 sm:col-span-2">
+            <p className="text-[10px] font-sans uppercase tracking-wider text-gray-400 mb-3">
+              Workload Imbalance
+            </p>
+            {Array.isArray(insights.workloadImbalances) && insights.workloadImbalances.length > 0 ? (
+              <div className="grid sm:grid-cols-3 gap-2">
+                {insights.workloadImbalances.slice(0, 6).map((row, idx) => (
+                  <div key={`${row.associateId || idx}-${idx}`} className="rounded-xl border border-gray-100 bg-gray-50/60 p-3">
+                    <p className="text-sm font-sans font-semibold text-slate-900">{row.associateName || row.associateId}</p>
+                    <p className="text-xs text-gray-400 font-sans mt-0.5">{row.assignmentCount || 0} assignments</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs font-sans text-gray-400">No imbalance data available yet.</p>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 // ─── MAIN DASHBOARD ───────────────────────────────────────────────────────────
 
 const TeamLeadDashboard = () => {
@@ -216,9 +360,9 @@ const TeamLeadDashboard = () => {
   const alertCount    = pendingCount + assignedCount;
 
   return (
-    <div className="min-h-screen bg-cream flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-sky-50 flex flex-col">
       {/* ─── Header ─── */}
-      <header className="bg-charcoal text-white sticky top-0 z-50 shadow-xl">
+      <header className="bg-gradient-to-r from-slate-900 via-indigo-900 to-purple-900 text-white sticky top-0 z-50 shadow-xl">
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <img src="/macys-logo.svg" alt="Macys" className="h-5 w-auto brightness-0 invert" />
@@ -249,7 +393,7 @@ const TeamLeadDashboard = () => {
             >
               <Bell size={20} className="text-white/70" strokeWidth={1.5} />
               {notifications.length > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 bg-gold text-charcoal text-[9px] rounded-full h-4 w-4 flex items-center justify-center font-bold">
+                <span className="absolute -top-0.5 -right-0.5 bg-amber-400 text-slate-900 text-[9px] rounded-full h-4 w-4 flex items-center justify-center font-bold">
                   {notifications.length > 9 ? '9+' : notifications.length}
                 </span>
               )}
@@ -284,7 +428,7 @@ const TeamLeadDashboard = () => {
                 <div className="relative">
                   <Icon size={15} strokeWidth={isActive ? 2 : 1.75} />
                   {badge > 0 && (
-                    <span className="absolute -top-1.5 -right-1.5 bg-gold text-charcoal text-[8px] rounded-full h-3.5 w-3.5 flex items-center justify-center font-bold">
+                    <span className="absolute -top-1.5 -right-1.5 bg-amber-400 text-slate-900 text-[8px] rounded-full h-3.5 w-3.5 flex items-center justify-center font-bold">
                       {badge}
                     </span>
                   )}
@@ -305,6 +449,7 @@ const TeamLeadDashboard = () => {
       <main className="flex-1 max-w-5xl mx-auto w-full px-4 py-6">
         {activeTab === 'overview' && <OverviewTab />}
         {activeTab === 'assign'   && <TaskAssignmentModule />}
+        {activeTab === 'ai-insights' && <AIInsightsTab />}
         {activeTab === 'tasks'    && <TaskQueue onViewClient={handleViewClient} />}
         {activeTab === 'clients'  && <ClientProfile />}
         {activeTab === 'team'     && <TeamTab />}

@@ -46,7 +46,7 @@ const ConfigPanel = ({ config, onUpdate, currentUser }) => {
             max={10}
             value={config.maxTasksPerAssociate}
             onChange={(e) => onUpdate('maxTasksPerAssociate', Number(e.target.value))}
-            className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm font-sans text-charcoal focus:outline-none focus:border-charcoal transition-colors"
+            className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm font-sans text-slate-900 focus:outline-none focus:border-indigo-600 transition-colors"
           />
         </div>
         <div>
@@ -59,7 +59,7 @@ const ConfigPanel = ({ config, onUpdate, currentUser }) => {
             max={60}
             value={config.autoReassignMinutes}
             onChange={(e) => onUpdate('autoReassignMinutes', Number(e.target.value))}
-            className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm font-sans text-charcoal focus:outline-none focus:border-charcoal transition-colors"
+            className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm font-sans text-slate-900 focus:outline-none focus:border-indigo-600 transition-colors"
           />
         </div>
       </div>
@@ -145,7 +145,7 @@ const TaskAssignmentModule = () => {
             onClick={() => setMobileTab(id)}
             className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-sans font-semibold transition-all border ${
               mobileTab === id
-                ? 'bg-charcoal text-white border-charcoal'
+                ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white border-transparent'
                 : 'bg-white text-gray-500 border-gray-200'
             }`}
           >

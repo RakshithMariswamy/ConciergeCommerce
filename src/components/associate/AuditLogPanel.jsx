@@ -86,7 +86,7 @@ const LogEntry = ({ entry, associates }) => {
             {subject && subject.id !== entry.actorId && (
               <>
                 {' '}→{' '}
-                <span className="font-medium text-charcoal">{subject.name}</span>
+                <span className="font-medium text-slate-900">{subject.name}</span>
               </>
             )}
           </p>
@@ -134,7 +134,7 @@ const AuditLogPanel = () => {
       >
         <div className="flex items-center gap-2.5">
           <ClipboardList size={16} className="text-gray-400" />
-          <span className="font-serif text-base font-medium text-charcoal">Audit Log</span>
+          <span className="font-serif text-base font-medium text-slate-900">Audit Log</span>
           {auditLog.length > 0 && (
             <span className="bg-gray-100 text-gray-600 text-[10px] font-sans font-bold px-2 py-0.5 rounded-full">
               {auditLog.length}
@@ -195,7 +195,7 @@ const AuditLogPanel = () => {
           {auditLog.length > 3 && (
             <button
               onClick={() => setExpanded(true)}
-              className="mt-2 text-[11px] text-gray-400 hover:text-charcoal font-sans transition-colors"
+              className="mt-2 text-[11px] text-gray-400 hover:text-indigo-600 font-sans transition-colors"
             >
               +{auditLog.length - 3} more events
             </button>

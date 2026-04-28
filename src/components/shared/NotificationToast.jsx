@@ -6,7 +6,7 @@ import useAppStore from '../../store/useAppStore';
 // new_task      → charcoal (informational queue update)
 const TYPE_STYLE = {
   task_assigned: { bg: 'bg-green-700', iconBg: 'bg-green-500/30', Icon: User,  iconCls: 'text-green-200', tag: 'New Assignment' },
-  new_task:      { bg: 'bg-charcoal',  iconBg: 'bg-gold/20',      Icon: Bell,  iconCls: 'text-gold',       tag: null },
+  new_task:      { bg: 'bg-slate-900',  iconBg: 'bg-amber-400/20',      Icon: Bell,  iconCls: 'text-amber-400',       tag: null },
 };
 
 const NotificationToast = () => {

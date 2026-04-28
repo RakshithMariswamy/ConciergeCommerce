@@ -24,10 +24,10 @@ const Modal = ({ isOpen, onClose, title, children, maxWidth = 'max-w-md' }) => {
       />
       <div className={`relative bg-white rounded-2xl w-full ${maxWidth} shadow-2xl`}>
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-50">
-          <h3 className="font-serif text-xl font-medium text-charcoal">{title}</h3>
+          <h3 className="font-serif text-xl font-medium text-slate-900">{title}</h3>
           <button
             onClick={onClose}
-            className="p-2 text-gray-400 hover:text-charcoal transition-colors rounded-lg hover:bg-gray-50"
+            className="p-2 text-gray-400 hover:text-indigo-600 transition-colors rounded-lg hover:bg-slate-100"
           >
             <X size={20} />
           </button>

@@ -279,10 +279,10 @@ const ChatPanel = ({ customerName, onClose, onCustomerMessage, injectMessage, on
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 shrink-0">
         <div className="flex items-center gap-2">
           <MessageSquare size={14} className="text-violet-500" />
-          <p className="text-sm font-semibold text-charcoal font-sans">Session Chat</p>
+          <p className="text-sm font-semibold text-slate-900 font-sans">Session Chat</p>
           <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
         </div>
-        <button onClick={onClose} className="text-gray-400 hover:text-charcoal text-xs font-semibold transition-colors">
+        <button onClick={onClose} className="text-gray-400 hover:text-indigo-600 text-xs font-semibold transition-colors">
           Hide
         </button>
       </div>
@@ -290,7 +290,7 @@ const ChatPanel = ({ customerName, onClose, onCustomerMessage, injectMessage, on
       {/* Participant bar */}
       <div className="flex items-center gap-2 px-4 py-2 border-b border-gray-50 bg-gray-50/60 shrink-0">
         <div className="flex -space-x-1.5">
-          <div className="w-5 h-5 rounded-full bg-charcoal text-white text-[9px] flex items-center justify-center font-bold ring-1 ring-white">Y</div>
+          <div className="w-5 h-5 rounded-full bg-indigo-600 text-white text-[9px] flex items-center justify-center font-bold ring-1 ring-white">Y</div>
           <div className="w-5 h-5 rounded-full bg-teal-600 text-white text-[9px] flex items-center justify-center font-bold ring-1 ring-white">
             {customerName[0]}
           </div>
@@ -315,8 +315,8 @@ const ChatPanel = ({ customerName, onClose, onCustomerMessage, injectMessage, on
               <div
                 className={`max-w-[88%] rounded-2xl px-3.5 py-2.5 ${
                   msg.sender === 'stylist'
-                    ? 'bg-charcoal text-white rounded-br-sm'
-                    : 'bg-white text-charcoal shadow-sm border border-gray-100 rounded-bl-sm'
+                    ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-br-sm'
+                    : 'bg-white text-slate-900 shadow-sm border border-gray-100 rounded-bl-sm'
                 }`}
               >
                 <p className="text-[13px] font-sans leading-relaxed">{msg.text}</p>
@@ -350,12 +350,12 @@ const ChatPanel = ({ customerName, onClose, onCustomerMessage, injectMessage, on
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && !e.shiftKey && send()}
             placeholder="Message customer…"
-            className="flex-1 bg-transparent text-sm font-sans text-charcoal placeholder-gray-400 outline-none"
+            className="flex-1 bg-transparent text-sm font-sans text-slate-900 placeholder-gray-400 outline-none"
           />
           <button
             onClick={send}
             disabled={!input.trim()}
-            className="p-1.5 rounded-lg bg-charcoal text-white disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-800 transition-colors"
+            className="p-1.5 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 text-white disabled:opacity-30 disabled:cursor-not-allowed hover:from-indigo-700 hover:to-purple-700 transition-colors"
           >
             <Send size={13} />
           </button>
@@ -511,11 +511,11 @@ const LiveSessionLayout = ({
             <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 shrink-0">
               <div className="flex items-center gap-2">
                 <Sparkles size={14} className="text-violet-500" />
-                <p className="text-sm font-semibold text-charcoal font-sans">AI Stylist</p>
+                <p className="text-sm font-semibold text-slate-900 font-sans">AI Stylist</p>
               </div>
               <button
                 onClick={() => setAiOpen(false)}
-                className="text-gray-400 hover:text-charcoal text-xs font-semibold transition-colors"
+                className="text-gray-400 hover:text-indigo-600 text-xs font-semibold transition-colors"
               >
                 Hide
               </button>

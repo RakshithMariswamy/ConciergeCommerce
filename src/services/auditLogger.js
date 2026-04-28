@@ -15,6 +15,7 @@
 
 export const AuditAction = Object.freeze({
   ASSIGNED: 'ASSIGNED',
+  AI_ASSIGNED: 'AI_ASSIGNED',
   UNASSIGNED: 'UNASSIGNED',
   REASSIGNED: 'REASSIGNED',
   AUTO_REASSIGNED: 'AUTO_REASSIGNED',
@@ -28,12 +29,14 @@ export const AuditAction = Object.freeze({
   RETURNED_FROM_BREAK: 'RETURNED_FROM_BREAK',
   AUTO_ASSIGN_RUN: 'AUTO_ASSIGN_RUN',
   CONFIG_CHANGED: 'CONFIG_CHANGED',
+  AI_INSIGHT_GENERATED: 'AI_INSIGHT_GENERATED',
 });
 
 // ─── HUMAN-READABLE LABELS ───────────────────────────────────────────────────
 
 const ACTION_LABELS = {
   [AuditAction.ASSIGNED]: 'Task Assigned',
+  [AuditAction.AI_ASSIGNED]: 'AI Suggested Assignee',
   [AuditAction.UNASSIGNED]: 'Task Unassigned',
   [AuditAction.REASSIGNED]: 'Task Reassigned',
   [AuditAction.AUTO_REASSIGNED]: 'Auto-Reassigned',
@@ -47,6 +50,7 @@ const ACTION_LABELS = {
   [AuditAction.RETURNED_FROM_BREAK]: 'Returned from Break',
   [AuditAction.AUTO_ASSIGN_RUN]: 'Auto-Assignment Run',
   [AuditAction.CONFIG_CHANGED]: 'Configuration Changed',
+  [AuditAction.AI_INSIGHT_GENERATED]: 'AI Insight Generated',
 };
 
 export const formatAuditAction = (action) => ACTION_LABELS[action] ?? action;
@@ -55,6 +59,7 @@ export const formatAuditAction = (action) => ACTION_LABELS[action] ?? action;
 
 const ACTION_SEVERITY = {
   [AuditAction.ASSIGNED]: 'info',
+  [AuditAction.AI_ASSIGNED]: 'info',
   [AuditAction.UNASSIGNED]: 'warn',
   [AuditAction.REASSIGNED]: 'warn',
   [AuditAction.AUTO_REASSIGNED]: 'warn',
@@ -68,6 +73,7 @@ const ACTION_SEVERITY = {
   [AuditAction.RETURNED_FROM_BREAK]: 'info',
   [AuditAction.AUTO_ASSIGN_RUN]: 'info',
   [AuditAction.CONFIG_CHANGED]: 'warn',
+  [AuditAction.AI_INSIGHT_GENERATED]: 'info',
 };
 
 export const getAuditSeverity = (action) => ACTION_SEVERITY[action] ?? 'info';

@@ -17,6 +17,7 @@ import {
   computeAssignments,
 } from '../../services/taskAssignmentEngine';
 import { createAuditEntry, AuditAction } from '../../services/auditLogger';
+import { useAgent } from '../../hooks/useAgent';
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
 
@@ -176,6 +177,8 @@ const AssignmentQueue = () => {
   const acquireLock = useAssignmentStore((s) => s.acquireLock);
   const releaseLock = useAssignmentStore((s) => s.releaseLock);
   const currentUser = useAssignmentStore((s) => s.currentUser);
+  const auditLog = useAssignmentStore((s) => s.auditLog);
+  const { invokeRouted, isThinking } = useAgent('orchestrator');
 
   const isLead = canOverride();
   const prioritized = prioritizeTasks(tasks);
@@ -235,6 +238,55 @@ const AssignmentQueue = () => {
       );
 
       releaseLock(taskId);
+
+      // AI enrichment runs asynchronously after the deterministic assignment.
+      const task = tasks.find((t) => t.id === taskId);
+      if (!task) return;
+
+      void invokeRouted({
+        intent: `Determine best associate assignment for task ${task.id} with fairness and priority context.`,
+        context: {
+          source: 'assignment-queue',
+          taskId: task.id,
+          pendingCount: prioritized.length,
+        },
+        payloadByAgent: {
+          task_assignment: {
+            task,
+            associates,
+            tasks,
+            auditLog,
+          },
+        },
+        defaultPayload: {
+          task,
+          associates,
+          tasks,
+          auditLog,
+        },
+      })
+        .then((routed) => {
+          const aiDecision = routed?.result;
+          if (!aiDecision?.reasoning) return;
+
+          addAuditEntry(
+            createAuditEntry({
+              action: AuditAction.AI_ASSIGNED,
+              taskId,
+              associateId: aiDecision.assigneeId || associateId,
+              actorId: currentUser.id,
+              actorName: currentUser.name,
+              actorRole: currentUser.role,
+              reason: aiDecision.reasoning,
+              metadata: {
+                confidence: aiDecision.confidence ?? null,
+                algorithmAssigneeId: associateId,
+                routedAgent: routed?.route?.agent || null,
+              },
+            })
+          );
+        })
+        .catch(() => {});
     });
 
     addAuditEntry(
@@ -267,7 +319,7 @@ const AssignmentQueue = () => {
             className="flex items-center gap-2 px-4 py-2 bg-charcoal text-white text-xs font-sans font-semibold rounded-xl hover:bg-gray-800 active:scale-95 transition-all shadow-luxury"
           >
             <Zap size={13} />
-            Auto-Assign All
+            {isThinking ? 'AI Enriching...' : 'Auto-Assign All'}
           </button>
         )}
       </div>

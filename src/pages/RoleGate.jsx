@@ -44,7 +44,7 @@ const PROFILES = [
       card: 'border-amber-200 hover:border-amber-400',
       icon: 'bg-amber-500 text-white',
       badge: 'bg-amber-50 text-amber-700 border-amber-200',
-      cta: 'bg-charcoal hover:bg-gray-800 text-white',
+      cta: 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white',
       accent: 'bg-gradient-to-br from-amber-400 to-orange-500',
       roleLabel: 'Associate',
       RoleIcon: User,
@@ -62,7 +62,7 @@ const PROFILES = [
       card: 'border-teal-200 hover:border-teal-400',
       icon: 'bg-teal-600 text-white',
       badge: 'bg-teal-50 text-teal-700 border-teal-200',
-      cta: 'bg-charcoal hover:bg-gray-800 text-white',
+      cta: 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white',
       accent: 'bg-gradient-to-br from-teal-400 to-emerald-500',
       roleLabel: 'Associate',
       RoleIcon: User,
@@ -80,7 +80,7 @@ const PROFILES = [
       card: 'border-rose-200 hover:border-rose-400',
       icon: 'bg-rose-500 text-white',
       badge: 'bg-rose-50 text-rose-700 border-rose-200',
-      cta: 'bg-charcoal hover:bg-gray-800 text-white',
+      cta: 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white',
       accent: 'bg-gradient-to-br from-rose-400 to-pink-500',
       roleLabel: 'Associate',
       RoleIcon: User,
@@ -120,7 +120,7 @@ const ProfileCard = ({ profile, onSelect }) => {
         </div>
 
         {/* Name + dept */}
-        <h3 className="font-serif text-lg font-semibold text-charcoal leading-tight">
+        <h3 className="font-serif text-lg font-semibold text-slate-900 leading-tight">
           {profile.name}
         </h3>
         <p className="text-xs text-gray-400 font-sans mt-0.5 mb-3">{profile.department}</p>
@@ -156,9 +156,9 @@ const RoleGate = () => {
   };
 
   return (
-    <div className="min-h-screen bg-cream flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-sky-50 flex flex-col">
       {/* Header */}
-      <header className="bg-charcoal text-white py-5 px-4 shadow-xl">
+      <header className="bg-gradient-to-r from-slate-900 via-indigo-900 to-purple-900 text-white py-5 px-4 shadow-xl">
         <div className="max-w-4xl mx-auto flex items-center gap-3">
           <img src="/macys-logo.svg" alt="Macys" className="h-6 w-auto brightness-0 invert" />
           <div>
@@ -174,11 +174,11 @@ const RoleGate = () => {
       <main className="flex-1 max-w-4xl mx-auto w-full px-4 py-10">
         {/* Headline */}
         <div className="text-center mb-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gold/20 border border-gold/30 text-amber-700 text-xs font-semibold font-sans mb-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-400/20 border border-amber-400/30 text-amber-700 text-xs font-semibold font-sans mb-4">
             <Star size={11} className="fill-amber-500 text-amber-500" />
             Demo Mode — Select a role to continue
           </div>
-          <h2 className="font-serif text-3xl font-medium text-charcoal leading-tight">
+          <h2 className="font-serif text-3xl font-medium text-slate-900 leading-tight">
             Who are you today?
           </h2>
           <p className="text-gray-400 font-sans mt-2 text-sm max-w-sm mx-auto">

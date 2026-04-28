@@ -97,7 +97,7 @@ const AssociateCard = ({ associate, workload, maxTasks, isLead }) => {
             {associate.initials}
           </div>
           <div className="min-w-0">
-            <p className="font-sans font-semibold text-sm text-charcoal truncate leading-tight">
+            <p className="font-sans font-semibold text-sm text-slate-900 truncate leading-tight">
               {associate.name}
             </p>
             <p className="text-[10px] font-sans text-gray-400 truncate">
@@ -188,7 +188,7 @@ const AssociatePool = () => {
     <div>
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <h2 className="font-serif text-lg font-medium text-charcoal">Associate Pool</h2>
+        <h2 className="font-serif text-lg font-medium text-slate-900">Associate Pool</h2>
         <div className="flex gap-2 text-xs font-sans">
           <span className="flex items-center gap-1 text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full font-semibold">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />

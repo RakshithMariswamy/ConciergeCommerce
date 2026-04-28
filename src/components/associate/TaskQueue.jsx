@@ -95,11 +95,11 @@ const TASK_TYPE = {
 
 // Filter pill active colors match the GYOR legend
 const FILTERS = [
-  { key: 'All',       label: 'All',      active: 'bg-charcoal text-white border-charcoal'         },
+  { key: 'All',       label: 'All',      active: 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white border-transparent' },
   { key: 'Pending',   label: 'Pending',  active: 'bg-red-500 text-white border-red-500'            },
   { key: 'Assigned',  label: 'Assigned', active: 'bg-orange-500 text-white border-orange-500'      },
-  { key: 'Active',    label: 'Active',   active: 'bg-yellow-500 text-charcoal border-yellow-500'   },
-  { key: 'Completed', label: 'Done',     active: 'bg-green-500 text-white border-green-500'        },
+  { key: 'Active',    label: 'Active',   active: 'bg-yellow-400 text-slate-900 border-yellow-400'   },
+  { key: 'Completed', label: 'Done',     active: 'bg-emerald-500 text-white border-emerald-500'        },
   { key: 'Flagged',   label: 'Flagged',  active: 'bg-rose-600 text-white border-rose-600'          },
 ];
 
@@ -236,7 +236,7 @@ const TaskCard = ({ task, onViewClient }) => {
 
           {/* ── Row 2: Customer name + item */}
           <div className="mb-3">
-            <h3 className="font-serif text-[1.15rem] font-semibold text-charcoal leading-snug">
+            <h3 className="font-serif text-[1.15rem] font-semibold text-slate-900 leading-snug">
               {task.customer}
             </h3>
             <p className="text-gray-500 text-sm font-sans mt-0.5 leading-snug">{task.item}</p>
@@ -287,7 +287,7 @@ const TaskCard = ({ task, onViewClient }) => {
             {task.status === 'Pending' && (
               <button
                 onClick={() => acceptTask(task.id)}
-                className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-charcoal text-white text-sm font-semibold hover:bg-gray-800 active:scale-95 transition-all"
+                className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-sm font-semibold hover:from-indigo-700 hover:to-purple-700 active:scale-95 transition-all"
               >
                 <CheckCircle size={14} />
                 Accept Task
@@ -345,7 +345,7 @@ const TaskCard = ({ task, onViewClient }) => {
             {task.customerId && task.status !== 'Completed' && (
               <button
                 onClick={handleViewClient}
-                className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-500 text-sm font-sans hover:border-charcoal hover:text-charcoal transition-colors"
+                className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-500 text-sm font-sans hover:border-indigo-600 hover:text-indigo-600 transition-colors"
               >
                 <User size={13} />
                 Client

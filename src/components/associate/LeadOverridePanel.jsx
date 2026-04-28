@@ -144,7 +144,7 @@ const LeadOverridePanel = ({ task, onClose }) => {
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
         <div>
-          <h2 className="font-serif text-lg font-medium text-charcoal">Lead Override</h2>
+          <h2 className="font-serif text-lg font-medium text-slate-900">Lead Override</h2>
           <p className="text-xs text-gray-400 font-sans mt-0.5 truncate max-w-xs">
             {task.customer} — {task.type}
           </p>
@@ -169,11 +169,11 @@ const LeadOverridePanel = ({ task, onClose }) => {
         {/* Current assignee info */}
         {currentAssignee && (
           <div className="flex items-center gap-2 px-3 py-2.5 bg-gray-50 rounded-xl border border-gray-100 text-sm font-sans">
-            <div className="w-7 h-7 rounded-full bg-charcoal text-white flex items-center justify-center text-[10px] font-bold shrink-0">
+            <div className="w-7 h-7 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[10px] font-bold shrink-0">
               {currentAssignee.initials}
             </div>
             <div>
-              <p className="font-medium text-charcoal leading-tight">{currentAssignee.name}</p>
+              <p className="font-medium text-slate-900 leading-tight">{currentAssignee.name}</p>
               <p className="text-[10px] text-gray-400">Current assignee · {currentAssignee.department}</p>
             </div>
           </div>
@@ -195,8 +195,8 @@ const LeadOverridePanel = ({ task, onClose }) => {
               onClick={() => setAction(id)}
               className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border text-xs font-sans font-semibold transition-all ${
                 action === id
-                  ? 'bg-charcoal text-white border-charcoal'
-                  : 'bg-white text-gray-600 border-gray-200 hover:border-charcoal'
+                  ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white border-transparent'
+                  : 'bg-white text-gray-600 border-gray-200 hover:border-indigo-600'
               }`}
             >
               <Icon size={14} />
@@ -214,7 +214,7 @@ const LeadOverridePanel = ({ task, onClose }) => {
             <select
               value={selectedAssociate}
               onChange={(e) => setSelectedAssociate(e.target.value)}
-              className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm font-sans text-charcoal bg-white focus:outline-none focus:border-charcoal transition-colors"
+              className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm font-sans text-slate-900 bg-white focus:outline-none focus:border-indigo-600 transition-colors"
             >
               <option value="">Select associate…</option>
               {onFloor.map((a) => (
@@ -241,7 +241,7 @@ const LeadOverridePanel = ({ task, onClose }) => {
             onChange={(e) => setReason(e.target.value)}
             placeholder="Briefly describe why this change is needed…"
             rows={2}
-            className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm font-sans text-charcoal placeholder-gray-300 focus:outline-none focus:border-charcoal resize-none transition-colors"
+            className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm font-sans text-slate-900 placeholder-gray-300 focus:outline-none focus:border-indigo-600 resize-none transition-colors"
           />
         </div>
       </div>
@@ -250,14 +250,14 @@ const LeadOverridePanel = ({ task, onClose }) => {
       <div className="flex gap-3 px-5 pb-5">
         <button
           onClick={onClose}
-          className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-sans text-gray-500 hover:border-charcoal hover:text-charcoal transition-colors"
+          className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-sans text-gray-500 hover:border-indigo-600 hover:text-indigo-600 transition-colors"
         >
           Cancel
         </button>
         <button
           onClick={handleSubmit}
           disabled={!canSubmit}
-          className="flex-1 py-2.5 rounded-xl bg-charcoal text-white text-sm font-sans font-semibold hover:bg-gray-800 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+          className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-sm font-sans font-semibold hover:from-indigo-700 hover:to-purple-700 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
         >
           Confirm Override
         </button>

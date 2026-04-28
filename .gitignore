@@ -1,0 +1,49 @@
+# ── Dependencies ──────────────────────────────────────────────────────────────
+node_modules/
+backend/node_modules/
+
+# ── Environment variables ──────────────────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+backend/.env
+backend/.env.local
+
+# ── Build output ───────────────────────────────────────────────────────────────
+dist/
+build/
+
+# ── Vite cache ─────────────────────────────────────────────────────────────────
+.vite/
+node_modules/.vite/
+
+# ── Test output ────────────────────────────────────────────────────────────────
+coverage/
+node_modules/.vitest/
+
+# ── OS files ───────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── Editor / IDE ───────────────────────────────────────────────────────────────
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ── Logs ───────────────────────────────────────────────────────────────────────
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ── Runtime / temp ─────────────────────────────────────────────────────────────
+*.pid
+*.seed
+*.pid.lock
+
+# ── Ghostline internal state ───────────────────────────────────────────────────
+.ghostline/session.json

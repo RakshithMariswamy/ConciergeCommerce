@@ -168,7 +168,7 @@ const InventoryPanel = () => {
                       className={`text-xs font-sans px-3 py-1.5 rounded-full border transition-colors ${
                         selectedColor === color
                           ? 'bg-charcoal text-white border-charcoal'
-                          : 'bg-white text-gray-600 border-gray-200 hover:border-charcoal'
+                          : 'bg-white text-gray-600 border-gray-200 hover:border-indigo-600'
                       }`}
                     >
                       {color}

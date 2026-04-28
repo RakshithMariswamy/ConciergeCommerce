@@ -4,6 +4,7 @@ import { mockProducts, mockCustomers } from '../data/mockData';
 import ProductSuggestionPanel from '../components/associate/ProductSuggestionPanel';
 import CartBuilder from '../components/associate/CartBuilder';
 import LiveSessionLayout from '../features/liveShopping/components/LiveSessionLayout';
+import SessionPrepPanel from '../features/liveShopping/components/SessionPrepPanel';
 import useAppStore from '../store/useAppStore';
 import { ArrowLeft, Radio, ShoppingBag, X } from 'lucide-react';
 
@@ -38,6 +39,7 @@ const LiveShoppingDemo = () => {
     []
   );
 
+  const [prepared, setPrepared]           = useState(false);
   const [autoQuery, setAutoQuery]         = useState(null);
   const [cartOpen, setCartOpen]           = useState(false);
   const [injectChatMsg, setInjectChatMsg] = useState(null);
@@ -66,6 +68,19 @@ const LiveShoppingDemo = () => {
       </p>
     </div>
   );
+
+  if (!prepared) {
+    return (
+      <div className="h-screen bg-slate-900">
+        <SessionPrepPanel
+          customer={fullCustomer}
+          task={taskInfo}
+          products={products}
+          onReady={() => setPrepared(true)}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="h-screen flex flex-col bg-slate-900 text-white overflow-hidden">
@@ -98,7 +113,7 @@ const LiveShoppingDemo = () => {
         >
           <ShoppingBag size={18} />
           {cartCount > 0 && (
-            <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 bg-amber-400 text-charcoal text-[10px] font-bold rounded-full flex items-center justify-center px-1 leading-none">
+            <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 bg-emerald-400 text-slate-900 text-[10px] font-bold rounded-full flex items-center justify-center px-1 leading-none">
               {cartCount}
             </span>
           )}
@@ -135,18 +150,18 @@ const LiveShoppingDemo = () => {
             onClick={() => setCartOpen(false)}
           />
           {/* Drawer */}
-          <div className="w-[680px] max-w-full h-full bg-cream overflow-y-auto shadow-2xl flex flex-col">
+          <div className="w-[680px] max-w-full h-full bg-gradient-to-b from-slate-50 to-sky-50 overflow-y-auto shadow-2xl flex flex-col">
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 shrink-0">
               <div className="flex items-center gap-2">
-                <ShoppingBag size={16} className="text-charcoal" />
-                <h2 className="font-serif text-lg font-medium text-charcoal">Session Cart</h2>
+                <ShoppingBag size={16} className="text-indigo-600" />
+                <h2 className="font-serif text-lg font-medium text-slate-900">Session Cart</h2>
                 {cartCount > 0 && (
                   <span className="text-xs font-sans text-gray-400">· {cartCount} item{cartCount !== 1 ? 's' : ''}</span>
                 )}
               </div>
               <button
                 onClick={() => setCartOpen(false)}
-                className="text-gray-400 hover:text-charcoal transition-colors"
+                className="text-gray-400 hover:text-indigo-600 transition-colors"
               >
                 <X size={18} />
               </button>

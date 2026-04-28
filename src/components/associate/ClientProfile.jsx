@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ShoppingBag, Heart, Star, Mail, Phone, TrendingUp, ChevronRight, Sparkles } from 'lucide-react';
 import useAppStore from '../../store/useAppStore';
 import ProductSuggestionPanel from './ProductSuggestionPanel';
+import { useAgent } from '../../hooks/useAgent';
 
 const TIER_CONFIG = {
   Platinum: {
@@ -9,8 +10,8 @@ const TIER_CONFIG = {
     ring: 'ring-slate-500', pill: 'bg-slate-700 text-white',
   },
   Gold: {
-    bg: 'bg-gold',         text: 'text-charcoal',
-    ring: 'ring-gold',     pill: 'bg-gold text-charcoal',
+    bg: 'bg-amber-400',         text: 'text-slate-900',
+    ring: 'ring-amber-400',     pill: 'bg-amber-400 text-slate-900',
   },
   Silver: {
     bg: 'bg-gray-200',     text: 'text-gray-700',
@@ -42,7 +43,7 @@ const CustomerCard = ({ customer, isSelected, onClick }) => {
       <div className="flex items-center gap-3">
         <Avatar customer={customer} />
         <div className="flex-1 min-w-0">
-          <p className="font-sans font-semibold text-charcoal text-sm truncate">{customer.name}</p>
+          <p className="font-sans font-semibold text-slate-900 text-sm truncate">{customer.name}</p>
           <div className="flex items-center gap-2 mt-0.5">
             <span className={`text-xs font-sans font-semibold px-2 py-0.5 rounded-full ${cfg.pill} uppercase tracking-wider`}>
               {customer.tier}
@@ -58,8 +59,42 @@ const CustomerCard = ({ customer, isSelected, onClick }) => {
 
 const CustomerDetail = ({ customer }) => {
   const [view, setView] = useState('profile');
+  const [showBrief, setShowBrief] = useState(false);
   const { setCartCustomer } = useAppStore();
+  const products = useAppStore((s) => s.products);
+  const tasks = useAppStore((s) => s.tasks);
+  const { invokeRouted, isThinking, result } = useAgent('orchestrator');
   const cfg = TIER_CONFIG[customer.tier] || TIER_CONFIG.Silver;
+
+  const currentTask = tasks.find((t) => t.customerId === customer.id && t.status !== 'Completed') || null;
+
+  const handleGenerateBrief = async () => {
+    await invokeRouted({
+      intent: `Generate a concise luxury clienteling brief for ${customer.name} with recommendations and upsell angle.`,
+      context: {
+        source: 'client-profile',
+        customerId: customer.id,
+        tier: customer.tier,
+        hasCurrentTask: Boolean(currentTask),
+      },
+      payloadByAgent: {
+        customer_intelligence: {
+          customer,
+          currentTask,
+          products,
+        },
+      },
+      defaultPayload: {
+        customer,
+        currentTask,
+        products,
+      },
+    });
+    setShowBrief(true);
+  };
+
+  const routedAgent = result?.route?.agent || null;
+  const brief = result?.executed ? result.result : null;
 
   return (
     <div className="space-y-4">
@@ -68,7 +103,7 @@ const CustomerDetail = ({ customer }) => {
         <button
           onClick={() => setView('profile')}
           className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all ${
-            view === 'profile' ? 'bg-white shadow text-charcoal' : 'text-gray-400 hover:text-charcoal'
+            view === 'profile' ? 'bg-white shadow text-slate-900' : 'text-gray-400 hover:text-indigo-600'
           }`}
         >
           Profile
@@ -78,7 +113,7 @@ const CustomerDetail = ({ customer }) => {
           className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
             view === 'prepare'
               ? 'bg-white shadow text-violet-700'
-              : 'text-gray-400 hover:text-charcoal'
+              : 'text-gray-400 hover:text-indigo-600'
           }`}
         >
           <Sparkles size={11} />
@@ -152,7 +187,7 @@ const CustomerDetail = ({ customer }) => {
                 <p className="text-[10px] text-gray-400 font-sans uppercase tracking-wider mb-1.5">Sizes</p>
                 <div className="flex flex-wrap gap-2">
                   {Object.entries(customer.preferences.sizes).map(([type, size]) => (
-                    <span key={type} className="text-xs font-sans bg-cream px-2.5 py-1 rounded text-charcoal border border-gray-100">
+                    <span key={type} className="text-xs font-sans bg-slate-50 px-2.5 py-1 rounded text-slate-900 border border-gray-100">
                       <span className="text-gray-400 capitalize">{type}:</span> <strong>{size}</strong>
                     </span>
                   ))}
@@ -167,7 +202,7 @@ const CustomerDetail = ({ customer }) => {
                   {customer.preferences.colors.map((color) => (
                     <span
                       key={color}
-                      className="text-xs font-sans bg-cream px-2.5 py-1 rounded-full text-charcoal border border-gray-100"
+                      className="text-xs font-sans bg-slate-50 px-2.5 py-1 rounded-full text-slate-900 border border-gray-100"
                     >
                       {color}
                     </span>
@@ -193,7 +228,7 @@ const CustomerDetail = ({ customer }) => {
 
               {customer.preferences.notes && (
                 <div className="bg-gold-50 border border-gold/20 rounded-xl p-3">
-                  <p className="text-xs text-charcoal font-sans font-semibold italic leading-relaxed">
+                  <p className="text-xs text-slate-900 font-sans font-semibold italic leading-relaxed">
                     "{customer.preferences.notes}"
                   </p>
                 </div>
@@ -210,7 +245,7 @@ const CustomerDetail = ({ customer }) => {
               {customer.recentPurchases.map((purchase, idx) => (
                 <div key={idx} className="flex items-center justify-between py-2.5 first:pt-0 last:pb-0">
                   <div>
-                    <p className="text-sm font-sans font-medium text-charcoal">{purchase.item}</p>
+                    <p className="text-sm font-sans font-medium text-slate-900">{purchase.item}</p>
                     <p className="text-xs text-gray-400 font-sans mt-0.5">
                       {purchase.sku} ·{' '}
                       {new Date(purchase.date).toLocaleDateString('en-US', {
@@ -220,7 +255,7 @@ const CustomerDetail = ({ customer }) => {
                       })}
                     </p>
                   </div>
-                  <p className="text-sm font-sans font-semibold text-charcoal flex-shrink-0 ml-3">
+                  <p className="text-sm font-sans font-semibold text-slate-900 flex-shrink-0 ml-3">
                     ${purchase.amount.toLocaleString()}
                   </p>
                 </div>
@@ -229,6 +264,58 @@ const CustomerDetail = ({ customer }) => {
           </div>
 
           {/* Build cart CTA */}
+          <button
+            onClick={handleGenerateBrief}
+            className="w-full border border-violet-200 bg-violet-50 text-violet-700 py-3 rounded-xl font-sans text-sm font-semibold hover:bg-violet-100 transition-colors flex items-center justify-center gap-2"
+          >
+            <Sparkles size={15} />
+            {isThinking ? 'Generating AI Brief...' : 'Get AI Brief'}
+          </button>
+
+          {showBrief && brief && (
+            <div className="bg-violet-50/60 border border-violet-200 rounded-xl p-4">
+              <p className="text-[10px] font-sans uppercase tracking-wider text-violet-500 mb-2">
+                AI Stylist Brief
+              </p>
+
+              {routedAgent && (
+                <p className="text-[10px] font-sans uppercase tracking-wider text-indigo-500 mb-2">
+                  Routed via orchestrator to: {routedAgent}
+                </p>
+              )}
+
+              <p className="text-sm font-sans text-slate-900 mb-3">
+                {brief.greetingSuggestion}
+              </p>
+
+              {Array.isArray(brief.topRecommendations) && brief.topRecommendations.length > 0 && (
+                <div className="mb-3">
+                  <p className="text-[10px] font-sans uppercase tracking-wider text-violet-500 mb-1.5">
+                    Top Recommendations
+                  </p>
+                  <div className="space-y-1.5">
+                    {brief.topRecommendations.slice(0, 3).map((rec, idx) => (
+                      <p key={`${rec.sku || rec.name}-${idx}`} className="text-xs font-sans text-slate-900">
+                        • {rec.name} {rec.price ? `($${Number(rec.price).toLocaleString()})` : ''}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {brief.upsellOpportunity && (
+                <p className="text-xs font-sans text-gray-600 mb-1">
+                  Upsell: {brief.upsellOpportunity}
+                </p>
+              )}
+              {brief.communicationStyleHint && (
+                <p className="text-xs font-sans text-gray-600">
+                  Style note: {brief.communicationStyleHint}
+                </p>
+              )}
+            </div>
+          )}
+
           <button
             onClick={() => setCartCustomer(customer.id)}
             className="w-full bg-charcoal text-white py-4 rounded-xl font-sans text-sm uppercase tracking-wider hover:bg-gray-800 active:scale-95 transition-all flex items-center justify-center gap-2"

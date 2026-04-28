@@ -140,7 +140,7 @@ const MyTaskCard = ({ task, isNew, onViewClient }) => {
           </div>
 
           {/* Customer */}
-          <h3 className="font-serif text-xl font-semibold text-charcoal leading-tight">{task.customer}</h3>
+          <h3 className="font-serif text-xl font-semibold text-slate-900 leading-tight">{task.customer}</h3>
           <p className="text-gray-500 text-sm font-sans mt-0.5 mb-3">{task.item}</p>
 
           {/* Meta row */}
@@ -162,7 +162,7 @@ const MyTaskCard = ({ task, isNew, onViewClient }) => {
             {task.status === 'Pending' && (
               <button
                 onClick={() => acceptTask(task.id)}
-                className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-charcoal text-white text-sm font-semibold hover:bg-gray-800 active:scale-95 transition-all"
+                className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-sm font-semibold hover:from-indigo-700 hover:to-purple-700 active:scale-95 transition-all"
               >
                 <CheckCircle size={14} />
                 Accept Task
@@ -215,7 +215,7 @@ const MyTaskCard = ({ task, isNew, onViewClient }) => {
             {task.customerId && task.status !== 'Completed' && (
               <button
                 onClick={() => { selectCustomer(task.customerId); if (onViewClient) onViewClient(task.customerId); }}
-                className="px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-500 text-sm hover:border-charcoal hover:text-charcoal transition-colors flex items-center gap-1.5"
+                className="px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-500 text-sm hover:border-indigo-600 hover:text-indigo-600 transition-colors flex items-center gap-1.5"
               >
                 <Users size={13} />
                 Client
@@ -377,9 +377,9 @@ const AssociateDashboard = () => {
   ).length;
 
   return (
-    <div className="min-h-screen bg-cream flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-sky-50 flex flex-col">
       {/* ─── Header ─── */}
-      <header className="bg-charcoal text-white sticky top-0 z-50 shadow-xl">
+      <header className="bg-gradient-to-r from-slate-900 via-indigo-900 to-purple-900 text-white sticky top-0 z-50 shadow-xl">
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <img src="/macys-logo.svg" alt="Macys" className="h-5 w-auto brightness-0 invert" />
@@ -414,8 +414,8 @@ const AssociateDashboard = () => {
                 strokeWidth={1.5}
               />
               {notifications.length > 0 && (
-                <span className={`absolute -top-0.5 -right-0.5 text-charcoal text-[9px] rounded-full h-4 w-4 flex items-center justify-center font-bold ${
-                  myNewNotifs > 0 ? 'bg-green-400' : 'bg-gold'
+                <span className={`absolute -top-0.5 -right-0.5 text-slate-900 text-[9px] rounded-full h-4 w-4 flex items-center justify-center font-bold ${
+                  myNewNotifs > 0 ? 'bg-emerald-400' : 'bg-amber-400'
                 }`}>
                   {notifications.length > 9 ? '9+' : notifications.length}
                 </span>
@@ -455,8 +455,8 @@ const AssociateDashboard = () => {
                 <div className="relative">
                   <Icon size={15} strokeWidth={isActive ? 2 : 1.75} />
                   {badge > 0 && (
-                    <span className={`absolute -top-1.5 -right-1.5 text-charcoal text-[8px] rounded-full h-3.5 w-3.5 flex items-center justify-center font-bold ${
-                      id === 'mine' && myNewNotifs > 0 ? 'bg-green-400' : 'bg-gold'
+                    <span className={`absolute -top-1.5 -right-1.5 text-slate-900 text-[8px] rounded-full h-3.5 w-3.5 flex items-center justify-center font-bold ${
+                      id === 'mine' && myNewNotifs > 0 ? 'bg-emerald-400' : 'bg-amber-400'
                     }`}>
                       {badge}
                     </span>

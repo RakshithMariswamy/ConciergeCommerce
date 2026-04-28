@@ -85,6 +85,50 @@ const useAssignmentStore = create((set, get) => ({
   // ─── AUDIT LOG ───────────────────────────────────────────────────────────────
   auditLog: [],
 
+  // ─── AGENT STATE ─────────────────────────────────────────────────────────────
+  agentState: {
+    isThinking: false,
+    lastAgentAction: null,
+    agentAuditEntries: [],
+    // Routing observability — last 20 orchestrator decisions with timing
+    routingHistory: [],
+    lastError: null,
+  },
+
+  setAgentThinking: (val) =>
+    set((state) => ({
+      agentState: {
+        ...state.agentState,
+        isThinking: Boolean(val),
+        // Clear error when a new invocation starts
+        lastError: val ? null : state.agentState.lastError,
+      },
+    })),
+
+  recordAgentAction: (action) =>
+    set((state) => ({
+      agentState: {
+        ...state.agentState,
+        lastAgentAction: action,
+        agentAuditEntries: [...state.agentState.agentAuditEntries, action],
+      },
+    })),
+
+  /**
+   * Records a completed orchestrator routing decision with timing.
+   * Shape: { id, source, intent, routedAgent, routeReason, routeMs, execMs,
+   *          totalMs, mode, error, timestamp }
+   * Capped at 20 entries (newest first).
+   */
+  recordRoutingDecision: (decision) =>
+    set((state) => ({
+      agentState: {
+        ...state.agentState,
+        lastError: decision.error || null,
+        routingHistory: [decision, ...state.agentState.routingHistory].slice(0, 20),
+      },
+    })),
+
   /** Prepend an entry and cap the log at 500 entries. */
   addAuditEntry: (entry) =>
     set((state) => ({

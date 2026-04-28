@@ -65,7 +65,7 @@ const NotificationItem = ({ notification, onDismiss }) => {
             {cfg.label}
           </span>
         </div>
-        <p className="text-sm font-sans font-medium text-charcoal leading-snug">
+        <p className="text-sm font-sans font-medium text-slate-900 leading-snug">
           {notification.message}
         </p>
         {notification.detail && (
@@ -120,10 +120,10 @@ const NotificationDrawer = ({ onClose }) => {
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
           <div className="flex items-center gap-2">
-            <Bell size={16} className="text-charcoal" />
-            <h2 className="font-serif text-lg font-medium text-charcoal">Notifications</h2>
+            <Bell size={16} className="text-indigo-600" />
+            <h2 className="font-serif text-lg font-medium text-slate-900">Notifications</h2>
             {notifications.length > 0 && (
-              <span className="bg-charcoal text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+              <span className="bg-slate-900 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
                 {notifications.length}
               </span>
             )}
@@ -132,7 +132,7 @@ const NotificationDrawer = ({ onClose }) => {
             {notifications.length > 0 && (
               <button
                 onClick={handleDismissAll}
-                className="text-xs font-sans text-gray-400 hover:text-charcoal transition-colors flex items-center gap-1"
+                className="text-xs font-sans text-gray-400 hover:text-indigo-600 transition-colors flex items-center gap-1"
               >
                 <CheckCircle size={11} />
                 Clear all

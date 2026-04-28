@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { ShoppingBag, Plus, Minus, Trash2, Send, CreditCard, X, Copy, Check } from 'lucide-react';
 import useAppStore from '../../store/useAppStore';
+import { useAgent } from '../../hooks/useAgent';
 
 // Deterministic mock QR pattern from a string token
 const buildQrPattern = (token) => {
@@ -21,6 +22,8 @@ const CartBuilder = ({ onSendToChat }) => {
   const [selectedColor,   setSelectedColor]   = useState(null);
   const [showModal,       setShowModal]       = useState(false);
   const [copied,          setCopied]          = useState(false);
+  const [aiRequest,       setAiRequest]       = useState('');
+  const { invokeRouted, isThinking, result: aiResult, error: aiError } = useAgent('orchestrator');
 
   const cartCustomer = customers.find((c) => c.id === cart.customerId);
   const cartTotal    = cart.items.reduce((sum, i) => sum + i.price * i.qty, 0);
@@ -52,16 +55,36 @@ const CartBuilder = ({ onSendToChat }) => {
     setSelectedColor(null);
   };
 
-  const handleGenerateLink = () => {
-    generatePaymentLink();
-    setShowModal(true);
-    // Push the payment link directly into session chat
-    const freshLink = useAppStore.getState().paymentLink;
-    if (freshLink && onSendToChat) {
-      const itemLabel = freshLink.itemCount === 1 ? '1 item' : `${freshLink.itemCount} items`;
-      onSendToChat(
-        `Payment link ready for you — ${itemLabel} · $${freshLink.total.toLocaleString()}\n${freshLink.url}`
-      );
+  const handleAICartBuild = async () => {
+    if (!aiRequest.trim()) return;
+    const cartApiRef = { addToCart, clearCart, setCartCustomer };
+    try {
+      await invokeRouted({
+        intent: `Build a client-ready cart based on this request: ${aiRequest}`,
+        context: {
+          source: 'cart-builder',
+          hasCustomer: Boolean(cartCustomer),
+          customerTier: cartCustomer?.tier || null,
+        },
+        payloadByAgent: {
+          cart_builder: {
+            customerProfile: cartCustomer || null,
+            request: aiRequest,
+            products,
+            inventory,
+            cartApi: cartApiRef,
+          },
+        },
+        defaultPayload: {
+          customerProfile: cartCustomer || null,
+          request: aiRequest,
+          products,
+          inventory,
+          cartApi: cartApiRef,
+        },
+      });
+    } catch {
+      // error is captured in aiError from useAgent hook — displayed in UI
     }
   };
 
@@ -92,7 +115,7 @@ const CartBuilder = ({ onSendToChat }) => {
           <select
             value={cart.customerId || ''}
             onChange={(e) => setCartCustomer(e.target.value || null)}
-            className="w-full text-sm font-sans text-charcoal bg-cream border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-charcoal transition-colors"
+            className="w-full text-sm font-sans text-slate-900 bg-slate-50 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-indigo-600 transition-colors"
           >
             <option value="">Walk-in Customer</option>
             {customers.map((c) => (
@@ -103,6 +126,74 @@ const CartBuilder = ({ onSendToChat }) => {
           </select>
         </div>
 
+        {/* AI cart builder */}
+        <div className="bg-violet-50/60 border border-violet-200 rounded-xl p-4 shadow-luxury">
+          <p className="text-[10px] text-violet-500 font-sans uppercase tracking-wider mb-2">
+            AI Cart Builder
+          </p>
+          <textarea
+            value={aiRequest}
+            onChange={(e) => setAiRequest(e.target.value)}
+            rows={3}
+            placeholder="Example: Build a summer capsule wardrobe for a Platinum client, minimalist style, budget 5000"
+            className="w-full text-sm font-sans text-slate-900 bg-white border border-violet-200 rounded-lg px-3 py-2.5 focus:outline-none focus:border-violet-400 resize-none"
+          />
+          <button
+            onClick={handleAICartBuild}
+            disabled={isThinking || !aiRequest.trim()}
+            className="mt-2.5 w-full bg-violet-600 text-white py-2.5 rounded-lg text-sm font-sans font-semibold hover:bg-violet-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isThinking ? 'Building Cart...' : 'Build With AI'}
+          </button>
+
+          {/* Error state */}
+          {aiError && !isThinking && (
+            <div className="mt-3 p-3 rounded-lg bg-red-50 border border-red-200">
+              <p className="text-xs font-semibold text-red-700 mb-0.5">Cart build failed</p>
+              <p className="text-xs text-red-600">{aiError.message || String(aiError)}</p>
+            </div>
+          )}
+
+          {/* Orchestrator route badge */}
+          {aiResult?.route?.agent && !isThinking && (
+            <p className="mt-2 text-[10px] text-indigo-500 font-sans uppercase tracking-wider">
+              Routed via orchestrator to: {aiResult.route.agent}
+            </p>
+          )}
+
+          {/* Summary message */}
+          {aiResult?.result?.summary && !isThinking && (
+            <div className={`mt-2 p-3 rounded-lg border text-xs font-sans leading-relaxed ${
+              aiResult.result.addedItems?.length > 0
+                ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                : 'bg-amber-50 border-amber-200 text-amber-800'
+            }`}>
+              {aiResult.result.summary}
+            </div>
+          )}
+
+          {/* Added items list */}
+          {aiResult?.result?.addedItems?.length > 0 && !isThinking && (
+            <div className="mt-2 space-y-1">
+              {aiResult.result.addedItems.map((item) => (
+                <div key={item.sku} className="flex items-center justify-between text-xs bg-white border border-violet-100 rounded-lg px-3 py-2">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="w-1.5 h-1.5 rounded-full bg-violet-400 shrink-0" />
+                    <span className="font-medium text-slate-800 truncate">{item.name}</span>
+                    <span className="text-slate-400 shrink-0">{item.category}</span>
+                  </div>
+                  <span className="font-semibold text-slate-700 shrink-0 ml-2">
+                    ${item.price?.toLocaleString()}
+                  </span>
+                </div>
+              ))}
+              <p className="text-[10px] text-slate-400 text-right pt-0.5">
+                Total: ${aiResult.result.total?.toLocaleString()}
+              </p>
+            </div>
+          )}
+        </div>
+
         {/* Product search */}
         {!selectedProduct && (
           <>
@@ -111,23 +202,23 @@ const CartBuilder = ({ onSendToChat }) => {
               placeholder="Search product or SKU…"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm font-sans focus:outline-none focus:border-charcoal transition-colors placeholder-gray-300"
+              className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm font-sans focus:outline-none focus:border-indigo-600 transition-colors placeholder-gray-300"
             />
             <div className="space-y-2 max-h-56 overflow-y-auto scrollbar-hide">
               {filteredProducts.map((product) => (
                 <button
                   key={product.id}
                   onClick={() => handleSelectProduct(product)}
-                  className="w-full text-left bg-white rounded-xl p-3.5 shadow-luxury hover:shadow-luxury-hover transition-all border-2 border-transparent hover:border-charcoal/20"
+                  className="w-full text-left bg-white rounded-xl p-3.5 shadow-luxury hover:shadow-luxury-hover transition-all border-2 border-transparent hover:border-indigo-400/30"
                 >
                   <div className="flex items-center justify-between gap-2">
                     <div className="min-w-0">
                       <p className="text-[10px] text-gray-400 font-sans">{product.sku}</p>
-                      <p className="font-sans font-medium text-charcoal text-sm truncate">
+                      <p className="font-sans font-medium text-slate-900 text-sm truncate">
                         {product.name}
                       </p>
                     </div>
-                    <p className="text-sm font-sans font-semibold text-charcoal flex-shrink-0">
+                    <p className="text-sm font-sans font-semibold text-slate-900 flex-shrink-0">
                       ${product.price.toLocaleString()}
                     </p>
                   </div>
@@ -141,10 +232,10 @@ const CartBuilder = ({ onSendToChat }) => {
         {selectedProduct && (
           <div className="bg-white rounded-xl p-4 shadow-luxury space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="font-sans font-semibold text-charcoal">{selectedProduct.name}</h3>
+              <h3 className="font-sans font-semibold text-slate-900">{selectedProduct.name}</h3>
               <button
                 onClick={() => { setSelectedProduct(null); setSelectedSize(null); setSelectedColor(null); }}
-                className="text-gray-400 hover:text-charcoal transition-colors"
+                className="text-gray-400 hover:text-indigo-600 transition-colors"
               >
                 <X size={16} />
               </button>
@@ -162,8 +253,8 @@ const CartBuilder = ({ onSendToChat }) => {
                     onClick={() => { setSelectedColor(color); setSelectedSize(null); }}
                     className={`text-xs font-sans px-3 py-1.5 rounded-full border transition-colors ${
                       selectedColor === color
-                        ? 'bg-charcoal text-white border-charcoal'
-                        : 'bg-white text-gray-600 border-gray-200 hover:border-charcoal'
+                        ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white border-transparent'
+                        : 'bg-white text-gray-600 border-gray-200 hover:border-indigo-600'
                     }`}
                   >
                     {color}
@@ -188,10 +279,10 @@ const CartBuilder = ({ onSendToChat }) => {
                         disabled={stock === 0}
                         className={`relative text-xs font-sans px-3 py-1.5 rounded border transition-colors ${
                           selectedSize === size
-                            ? 'bg-charcoal text-white border-charcoal'
+                            ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white border-transparent'
                             : stock === 0
                             ? 'bg-gray-50 text-gray-300 border-gray-100 cursor-not-allowed line-through'
-                            : 'bg-white text-gray-600 border-gray-200 hover:border-charcoal'
+                            : 'bg-white text-gray-600 border-gray-200 hover:border-indigo-600'
                         }`}
                       >
                         {size}
@@ -228,7 +319,7 @@ const CartBuilder = ({ onSendToChat }) => {
           {cart.items.length > 0 && (
             <button
               onClick={clearCart}
-              className="text-xs text-gray-400 hover:text-charcoal font-sans transition-colors"
+              className="text-xs text-gray-400 hover:text-indigo-600 font-sans transition-colors"
             >
               Clear all
             </button>
@@ -246,7 +337,7 @@ const CartBuilder = ({ onSendToChat }) => {
             {cartCustomer && (
               <div className="bg-charcoal/5 border border-charcoal/10 rounded-xl p-3 text-sm font-sans text-gray-500">
                 Assigned to{' '}
-                <span className="font-semibold text-charcoal">{cartCustomer.name}</span>{' '}
+                <span className="font-semibold text-slate-900">{cartCustomer.name}</span>{' '}
                 · {cartCustomer.tier}
               </div>
             )}
@@ -260,7 +351,7 @@ const CartBuilder = ({ onSendToChat }) => {
                   }`}
                 >
                   <div className="flex-1 min-w-0">
-                    <p className="font-sans font-medium text-charcoal text-sm">{item.name}</p>
+                    <p className="font-sans font-medium text-slate-900 text-sm">{item.name}</p>
                     <p className="text-xs text-gray-400 font-sans mt-0.5">
                       {item.color} · {item.size}
                     </p>
@@ -269,14 +360,14 @@ const CartBuilder = ({ onSendToChat }) => {
                   <div className="flex items-center gap-1.5">
                     <button
                       onClick={() => updateCartQty(item.id, item.qty - 1)}
-                      className="w-7 h-7 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:border-charcoal hover:text-charcoal transition-colors"
+                      className="w-7 h-7 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:border-indigo-600 hover:text-indigo-600 transition-colors"
                     >
                       <Minus size={11} />
                     </button>
                     <span className="w-5 text-center text-sm font-sans">{item.qty}</span>
                     <button
                       onClick={() => updateCartQty(item.id, item.qty + 1)}
-                      className="w-7 h-7 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:border-charcoal hover:text-charcoal transition-colors"
+                      className="w-7 h-7 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:border-indigo-600 hover:text-indigo-600 transition-colors"
                     >
                       <Plus size={11} />
                     </button>
