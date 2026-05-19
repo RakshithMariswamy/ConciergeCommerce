@@ -88,6 +88,11 @@ const CartBuilder = ({ onSendToChat }) => {
     }
   };
 
+  const handleGenerateLink = () => {
+    generatePaymentLink();
+    setShowModal(true);
+  };
+
   const handleCopy = async () => {
     if (!paymentLink) return;
     await navigator.clipboard.writeText(paymentLink.url).catch(() => {});

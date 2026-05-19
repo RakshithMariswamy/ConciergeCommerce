@@ -276,7 +276,7 @@ export default function SessionPrepPanel({ customer, task, products, onReady }) 
           {loading ? 'AI is preparing your briefing…' : 'Briefing complete'}
         </p>
         <button
-          onClick={onReady}
+          onClick={() => onReady(prep)}
           disabled={loading}
           className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-wait transition-colors text-sm font-semibold font-sans"
         >

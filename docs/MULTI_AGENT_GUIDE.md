@@ -16,7 +16,7 @@ A multi-agent system is a set of specialized AI workers, each owning a narrow do
 User Action / System Event
         │
         ▼
-  [Orchestrator Agent]  ←── routes based on intent
+  [Orchestrator Agent]  ←── routes based on intent◊
    /    |     \    \
   ↓     ↓      ↓    ↓
 Task  Customer  Cart  Live

@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import {
   Mic, MicOff, Video, VideoOff, PhoneOff,
   Monitor, MessageSquare, Send, Sparkles, Wifi, Radio,
+  ChevronRight, Target, Users, Package, Zap,
 } from 'lucide-react';
 
 // ── Keyword → AI query mapping ────────────────────────────────────────────────
@@ -365,6 +366,125 @@ const ChatPanel = ({ customerName, onClose, onCustomerMessage, injectMessage, on
   );
 };
 
+// ── Session Brief reference panel ─────────────────────────────────────────────
+const SessionBriefPanel = ({ brief, customer }) => {
+  if (!brief) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full text-gray-400 gap-3 p-6 text-center">
+        <p className="text-sm font-sans">No briefing available.</p>
+      </div>
+    );
+  }
+
+  const TIER_STYLES = {
+    Platinum: 'text-violet-600 bg-violet-50 border-violet-200',
+    Gold:     'text-amber-600 bg-amber-50 border-amber-200',
+    Silver:   'text-slate-600 bg-slate-50 border-slate-200',
+    Bronze:   'text-orange-600 bg-orange-50 border-orange-200',
+  };
+  const tierStyle = TIER_STYLES[customer?.tier] ?? TIER_STYLES.Silver;
+
+  return (
+    <div className="flex flex-col h-full overflow-y-auto p-4 space-y-4 bg-white">
+
+      {/* Customer snapshot */}
+      {customer && (
+        <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
+          <div className="w-9 h-9 rounded-full bg-indigo-100 flex items-center justify-center text-sm font-serif text-indigo-700 shrink-0">
+            {customer.initials || 'CU'}
+          </div>
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-slate-900 font-sans leading-none truncate">{customer.name}</p>
+            <span className={`inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full border mt-1 font-sans ${tierStyle}`}>
+              {customer.tier} Member
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* Session goal */}
+      {brief.sessionGoal && (
+        <div className="rounded-xl border border-indigo-100 bg-indigo-50 p-3">
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <Target size={11} className="text-indigo-500" />
+            <span className="text-[10px] font-bold text-indigo-500 uppercase tracking-wider font-sans">Session Goal</span>
+          </div>
+          <p className="text-xs text-slate-700 font-sans leading-relaxed">{brief.sessionGoal}</p>
+        </div>
+      )}
+
+      {/* Customer insight */}
+      {brief.customerInsight && (
+        <div className="rounded-xl border border-emerald-100 bg-emerald-50 p-3">
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <Users size={11} className="text-emerald-600" />
+            <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider font-sans">Customer Insight</span>
+          </div>
+          <p className="text-xs text-slate-700 font-sans leading-relaxed">{brief.customerInsight}</p>
+        </div>
+      )}
+
+      {/* Talking points */}
+      {brief.talkingPoints?.length > 0 && (
+        <div>
+          <div className="flex items-center gap-1.5 mb-2">
+            <MessageSquare size={11} className="text-amber-500" />
+            <span className="text-[10px] font-bold text-amber-500 uppercase tracking-wider font-sans">Talking Points</span>
+          </div>
+          <ul className="space-y-1.5">
+            {brief.talkingPoints.map((pt, i) => (
+              <li key={i} className="flex gap-2 text-xs text-slate-600 font-sans leading-snug">
+                <ChevronRight size={11} className="text-amber-400 shrink-0 mt-0.5" />
+                {pt}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* Product focus */}
+      {brief.productFocus?.length > 0 && (
+        <div>
+          <div className="flex items-center gap-1.5 mb-2">
+            <Package size={11} className="text-rose-500" />
+            <span className="text-[10px] font-bold text-rose-500 uppercase tracking-wider font-sans">Product Focus</span>
+          </div>
+          <div className="space-y-1.5">
+            {brief.productFocus.map((p, i) => (
+              <div key={i} className="flex items-start gap-2.5 rounded-xl bg-rose-50 border border-rose-100 p-2.5">
+                <div className="w-5 h-5 rounded-md bg-rose-200 flex items-center justify-center text-rose-700 text-[10px] font-bold font-sans shrink-0">
+                  {i + 1}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold text-slate-800 font-sans truncate">{p.name}</p>
+                  <p className="text-[10px] text-slate-500 font-sans mt-0.5 leading-snug">{p.reason}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Icebreakers */}
+      {brief.icebreakers?.length > 0 && (
+        <div>
+          <div className="flex items-center gap-1.5 mb-2">
+            <Zap size={11} className="text-sky-500" />
+            <span className="text-[10px] font-bold text-sky-500 uppercase tracking-wider font-sans">Icebreakers</span>
+          </div>
+          <div className="space-y-1.5">
+            {brief.icebreakers.map((line, i) => (
+              <div key={i} className="rounded-xl border border-sky-100 bg-sky-50 px-3 py-2">
+                <p className="text-[11px] text-slate-600 font-sans italic leading-relaxed">"{line}"</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 // ── Main 3-panel Teams-like layout ────────────────────────────────────────────
 const LiveSessionLayout = ({
   aiPane,
@@ -375,9 +495,12 @@ const LiveSessionLayout = ({
   onAutoQuery,
   injectMessage    = null,
   onInjectConsumed,
+  sessionBrief     = null,
+  customer         = null,
 }) => {
   const [aiOpen, setAiOpen]             = useState(true);
   const [chatOpen, setChatOpen]         = useState(true);
+  const [leftTab, setLeftTab]           = useState('ai'); // 'ai' | 'brief'
   const [muted, setMuted]               = useState(false);
   const [cameraOff, setCameraOff]       = useState(false);
   const [speaking, setSpeaking]         = useState(null);
@@ -508,19 +631,47 @@ const LiveSessionLayout = ({
           }`}
         >
           <div className="w-80 h-full flex flex-col bg-white">
-            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 shrink-0">
-              <div className="flex items-center gap-2">
-                <Sparkles size={14} className="text-violet-500" />
-                <p className="text-sm font-semibold text-slate-900 font-sans">AI Stylist</p>
+            {/* Tab bar */}
+            <div className="shrink-0 border-b border-gray-100">
+              <div className="flex items-center">
+                <button
+                  onClick={() => setLeftTab('ai')}
+                  className={`flex items-center gap-1.5 px-4 py-2.5 text-xs font-semibold font-sans border-b-2 transition-colors ${
+                    leftTab === 'ai'
+                      ? 'border-violet-500 text-violet-600'
+                      : 'border-transparent text-gray-400 hover:text-slate-700'
+                  }`}
+                >
+                  <Sparkles size={12} />
+                  AI Stylist
+                </button>
+                {sessionBrief && (
+                  <button
+                    onClick={() => setLeftTab('brief')}
+                    className={`flex items-center gap-1.5 px-4 py-2.5 text-xs font-semibold font-sans border-b-2 transition-colors ${
+                      leftTab === 'brief'
+                        ? 'border-indigo-500 text-indigo-600'
+                        : 'border-transparent text-gray-400 hover:text-slate-700'
+                    }`}
+                  >
+                    <Target size={12} />
+                    Session Brief
+                  </button>
+                )}
+                <button
+                  onClick={() => setAiOpen(false)}
+                  className="ml-auto px-3 py-2.5 text-gray-400 hover:text-indigo-600 text-xs font-semibold transition-colors"
+                >
+                  Hide
+                </button>
               </div>
-              <button
-                onClick={() => setAiOpen(false)}
-                className="text-gray-400 hover:text-indigo-600 text-xs font-semibold transition-colors"
-              >
-                Hide
-              </button>
             </div>
-            <div className="flex-1 min-h-0 overflow-hidden">{aiPane}</div>
+            <div className="flex-1 min-h-0 overflow-hidden">
+              {leftTab === 'ai'
+                ? aiPane
+                : <SessionBriefPanel brief={sessionBrief} customer={customer} />
+              }
+            </div>
           </div>
         </div>
 

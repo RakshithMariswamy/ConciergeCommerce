@@ -40,6 +40,7 @@ const LiveShoppingDemo = () => {
   );
 
   const [prepared, setPrepared]           = useState(false);
+  const [sessionBrief, setSessionBrief]   = useState(null);
   const [autoQuery, setAutoQuery]         = useState(null);
   const [cartOpen, setCartOpen]           = useState(false);
   const [injectChatMsg, setInjectChatMsg] = useState(null);
@@ -76,7 +77,7 @@ const LiveShoppingDemo = () => {
           customer={fullCustomer}
           task={taskInfo}
           products={products}
-          onReady={() => setPrepared(true)}
+          onReady={(prep) => { setSessionBrief(prep); setPrepared(true); }}
         />
       </div>
     );
@@ -189,6 +190,8 @@ const LiveShoppingDemo = () => {
           onAutoQuery={setAutoQuery}
           injectMessage={injectChatMsg}
           onInjectConsumed={() => setInjectChatMsg(null)}
+          sessionBrief={sessionBrief}
+          customer={fullCustomer}
         />
       </div>
     </div>
